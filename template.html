@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中國歷代人物傳記資料庫姓氏統計表</title>
+<style>
+  :root{
+    --paper:#f6f1e3; --paper2:#efe8d6; --ink:#2b2a28; --gray:#6e6a62;
+    --verm:#a63a2e; --blue:#3a4858; --line:#d8d0ba; --light:#fbf8f0;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Songti TC","Songti SC","Noto Serif CJK TC","Noto Serif CJK SC","Source Han Serif TC","Source Han Serif SC","STSong","SimSun",serif;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(255,255,255,.55), transparent 60%),
+      repeating-linear-gradient(0deg, transparent 0 6px, rgba(120,105,80,.015) 6px 7px),
+      repeating-linear-gradient(90deg, transparent 0 9px, rgba(120,105,80,.012) 9px 10px),
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 30px 40px;}
+  header{display:flex; align-items:flex-start; justify-content:space-between; gap:20px;}
+  .title-side h1{font-size:35px; font-weight:900; letter-spacing:2px; line-height:1.25;}
+  .title-side .en{font-size:16px; font-weight:600; color:var(--gray); letter-spacing:.4px; margin-top:8px;}
+  .subtitle{
+    color:var(--gray); font-size:14.5px; letter-spacing:.5px; margin-top:14px;
+    padding-top:12px; border-top:1px solid rgba(216,208,186,.65);
+  }
+  .seal{
+    flex:none; width:96px; padding:10px 0 8px;
+    background:var(--verm); color:#f7f0e4;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-size:21px; font-weight:900; line-height:1.35; border-radius:10px;
+    transform:rotate(3deg); box-shadow:0 2px 8px rgba(120,40,30,.25);
+    margin-top:6px; letter-spacing:6px;
+  }
+  .seal .divider{width:62%; height:1px; background:rgba(247,240,228,.7); margin:3px 0;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:26px;}
+  .kpi{
+    background:var(--light); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; box-shadow:0 1px 3px rgba(80,70,50,.08);
+  }
+  .kpi .v{font-size:26px; font-weight:900; letter-spacing:1px;}
+  .kpi .v small{font-size:14px; font-weight:600; color:var(--gray);}
+  .kpi .l{font-size:13px; color:var(--gray); margin-top:4px;}
+  .kpi.hl{border-color:var(--verm);}
+  .kpi.hl .v{color:var(--verm);}
+  .controls{
+    display:flex; flex-wrap:wrap; align-items:center; gap:18px 28px;
+    margin-top:24px; padding:14px 18px; background:rgba(251,248,240,.75);
+    border:1px solid var(--line); border-radius:10px;
+  }
+  .ctrl{display:flex; align-items:center; gap:10px; font-size:14px; color:var(--gray);}
+  .ctrl b{color:var(--ink); font-size:16px; min-width:34px; text-align:center;}
+  input[type=range]{accent-color:var(--verm); width:170px; cursor:pointer;}
+  select{
+    font-family:inherit; font-size:14px; color:var(--ink); padding:5px 8px;
+    border:1px solid var(--line); border-radius:6px; background:#fffdf7; cursor:pointer;
+  }
+  .btn{
+    font-family:inherit; font-size:14px; letter-spacing:1px; padding:6px 16px;
+    border:1px solid var(--ink); background:transparent; color:var(--ink);
+    border-radius:6px; cursor:pointer; transition:all .15s;
+  }
+  .btn:hover{background:var(--ink); color:#f6f1e3;}
+  .chart-box{position:relative; margin-top:6px; background:rgba(251,248,240,.55); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  #barView{display:block;}
+  svg{display:block; width:100%; height:auto;}
+  #tooltip{
+    position:absolute; pointer-events:none; z-index:50; display:none;
+    background:rgba(43,42,40,.94); color:#f6f1e3; padding:10px 14px; border-radius:8px;
+    font-size:14px; line-height:1.55; box-shadow:0 4px 14px rgba(0,0,0,.25); max-width:280px;
+  }
+  #tooltip .t-name{font-size:22px; font-weight:900; letter-spacing:2px;}
+  #tooltip .t-row{color:#d8d0ba;}
+  .bjx-box{margin-top:14px; border:1px solid var(--line); border-radius:10px; background:rgba(251,248,240,.75); overflow:hidden;}
+  .bjx-box summary{cursor:pointer; padding:10px 16px; font-size:14px; color:var(--gray); letter-spacing:1px; user-select:none; list-style:none;}
+  .bjx-box summary::before{content:"▸ "; color:var(--verm);}
+  .bjx-box[open] summary::before{content:"▾ ";}
+  .bjx-grid{display:grid; grid-template-columns:repeat(8,1fr); border-top:1px solid var(--line);}
+  .bjx-cell{display:flex; gap:6px; align-items:baseline; padding:4px 10px; font-size:13px; border-bottom:1px solid rgba(216,208,186,.5); border-right:1px solid rgba(216,208,186,.5);}
+  .bjx-cell .bp{color:#a39c8b; font-size:11px; min-width:26px;}
+  .bjx-cell .bs{font-weight:900; color:var(--ink); font-size:15px;}
+  .bjx-cell .bn{margin-left:auto; color:var(--verm); font-weight:700;}
+  .bjx-cell.zero .bs{color:#b3ac9b;}
+  .bjx-cell.zero .bn{color:#c3bdaa; font-weight:400;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title-side">
+      <h1>中國歷代人物傳記資料庫姓氏統計表</h1>
+      <p class="en">Surname Statistics w.r.t Historical Figures in the CBDB Database</p>
+      <p class="subtitle">數據來源：__DB_LABEL__｜共 __TOTAL_PERSONS_FMT__ 名人物，其中有姓人物 __TOTAL_NAMED_FMT__ 名</p>
+    </div>
+    <div class="seal">
+      <span>姓氏</span>
+      <span class="divider"></span>
+      <span>摘要</span>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v" id="k1">__K1__</div><div class="l">人物總數（BIOG_MAIN）</div></div>
+    <div class="kpi"><div class="v" id="k2">__K2__</div><div class="l">有姓氏記錄的人物</div></div>
+    <div class="kpi hl"><div class="v" id="k3">__K3__</div><div class="l">Top 20 姓氏人數 · 約占 __K3PCT__</div></div>
+    <div class="kpi hl"><div class="v">__TOP1_NAME__ <small>__TOP1_N__</small></div><div class="l">第一大姓（占 __TOP1_PCT__）</div></div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl">顯示前 <b id="nLabel">20</b> 個<input type="range" id="topN" min="5" max="50" value="20"></div>
+    <div class="ctrl">排序
+      <select id="sortMode">
+        <option value="desc" selected>人數降序</option>
+        <option value="asc">人數升序</option>
+      </select>
+    </div>
+    <div class="ctrl" style="margin-left:auto"><button class="btn" id="exportBtn">下載 PNG</button></div>
+  </div>
+
+  <div class="chart-box" id="chartBox">
+    <div id="barView"><svg id="barSvg" viewBox="0 0 1100 780" preserveAspectRatio="xMidYMid meet"><style>
+      text{font-family:"Songti TC","Songti SC","Noto Serif CJK TC","Noto Serif CJK SC","STSong","SimSun",serif;}
+    </style></svg></div>
+    <div id="tooltip"></div>
+  </div>
+
+  <details class="bjx-box" id="bjxBox">
+    <summary>《百家姓》序位速查表（504 姓）· 人數為 CBDB 統計，無數據者記 0</summary>
+    <div class="bjx-grid" id="bjxGrid"></div>
+  </details>
+  <details class="bjx-box" id="extraBox">
+    <summary>非《百家姓》姓氏表（CBDB 另有 __EXTRA_COUNT__ 個姓氏，按人數降序排列）· 人數為 CBDB 統計</summary>
+    <div class="bjx-grid" id="extraGrid"></div>
+  </details>
+</div>
+
+<script>
+/* ================= 數據（Top 50：姓氏, 人數） ================= */
+const RAW = __RAW__.map(([s,n,b]) => ({s,n,b}));
+
+/* 《百家姓》全文 504 姓序位數據：[姓氏, CBDB人數(無數據=0), 序位] */
+const BJX = __BJX__;
+
+/* 非《百家姓》姓氏（CBDB 中有数据、但不属于 504 姓，按民族劃分）：[姓氏, 人數, 民族] */
+const EXTRA = __EXTRA__;
+
+
+
+
+const TOTAL_PERSONS = __TOTAL_PERSONS__;
+const TOTAL_NAMED   = __TOTAL_NAMED__;
+const TOP20_SUM     = RAW.slice(0,20).reduce((a,x)=>a+x.n,0);
+
+/* ================= 狀態 ================= */
+const state = { topN:20, sort:"desc" };
+
+const $ = id => document.getElementById(id);
+const chartBox = $("chartBox");
+const tip = $("tooltip");
+const NS = "http://www.w3.org/2000/svg";
+
+const fmt = n => n.toLocaleString("en-US");
+
+/* ================= 工具函數 ================= */
+function visibleData(){
+  let d = RAW.slice(0, state.topN);
+  if (state.sort === "asc") d = [...d].sort((a,b)=>a.n-b.n);
+  return d;
+}
+
+function showTip(html, x, y){
+  tip.innerHTML = html;
+  tip.style.display = "block";
+  const r = chartBox.getBoundingClientRect();
+  let px = x - r.left + 18, py = y - r.top + 18;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  if (px + tw > r.width - 6) px = x - r.left - tw - 14;
+  if (py + th > r.height - 6) py = y - r.top - th - 14;
+  tip.style.left = px + "px";
+  tip.style.top  = py + "px";
+}
+function hideTip(){ tip.style.display = "none"; }
+
+function tipHtml(d, rank){
+  const pos = d.b ? `《百家姓》第 ${d.b} 位` : "未載於《百家姓》";
+  return `<div class="t-name">${d.s}</div>
+    <div>人數：<b>${fmt(d.n)}</b></div>
+    <div class="t-row">占有姓人物：${(d.n/TOTAL_NAMED*100).toFixed(2)}%</div>
+    <div class="t-row">占 Top 20：${(d.n/TOP20_SUM*100).toFixed(1)}%</div>
+    <div class="t-row">${pos}</div>`;
+}
+
+/* ================= 條形圖 ================= */
+function renderBar(){
+  const svg = $("barSvg");
+  while (svg.childNodes.length > 1) svg.removeChild(svg.lastChild); // 保留 <style>
+  const data = visibleData().map((x,i)=>({...x, rank:i+1}));
+  const W = 1100, top = 70, bottomPad = 90;
+  let H, gap, bh;
+  if (data.length <= 20){
+    // 5–20：保持原布局（固定高度内自适应，行高随条数变化）
+    H = 780;
+    gap = Math.min(14, Math.max(3, (H-top-bottomPad)/data.length*0.18));
+    bh = (H-top-bottomPad - gap*(data.length-1)) / data.length;
+  } else {
+    // 21–50：行高固定为 20 条时的行高；每加一个姓氏就多一行，图表框随之增高
+    const gap20 = Math.min(14, Math.max(3, (780-top-bottomPad)/20*0.18));
+    const bh20 = (780-top-bottomPad - gap20*19) / 20;
+    gap = gap20;
+    bh = bh20;
+    H = Math.round(top + data.length*(bh+gap) - gap + bottomPad);
+  }
+  const bot = H - bottomPad;
+  const x0 = 170, x1 = W - 180;
+  const maxN = RAW[0].n;
+  const maxPct = maxN / TOTAL_NAMED * 100;
+
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+  const g = document.createElementNS(NS,"g");
+  svg.appendChild(g);
+
+  // 背景
+  const bg = document.createElementNS(NS,"rect");
+  bg.setAttribute("x",0); bg.setAttribute("y",0); bg.setAttribute("width",W); bg.setAttribute("height",H);
+  bg.setAttribute("fill","#fbf8f0");
+  g.appendChild(bg);
+
+  // 標題
+  const t1 = document.createElementNS(NS,"text");
+  t1.setAttribute("x",30); t1.setAttribute("y",46); t1.setAttribute("font-size","24"); t1.setAttribute("font-weight","900");
+  t1.setAttribute("fill","#2b2a28"); t1.setAttribute("letter-spacing","2");
+  t1.textContent = `姓氏 Top ${data.length} · 人數排行（${state.sort==="asc"?"人數升序":"人數降序"}）`;
+  g.appendChild(t1);
+
+  const t2 = document.createElementNS(NS,"text");
+  t2.setAttribute("x",W-240); t2.setAttribute("y",46); t2.setAttribute("font-size","15"); t2.setAttribute("text-anchor","end");
+  t2.setAttribute("fill","#6e6a62");
+  t2.textContent = `占全部有姓人物（${fmt(TOTAL_NAMED)}）的百分比`;
+  g.appendChild(t2);
+
+  // 網格與 % 刻度
+  const ticks = [0,2,4,6];
+  ticks.forEach(p=>{
+    const x = x0 + (x1-x0)*p/maxPct;
+    const ln = document.createElementNS(NS,"line");
+    ln.setAttribute("x1",x); ln.setAttribute("y1",top); ln.setAttribute("x2",x); ln.setAttribute("y2",bot);
+    ln.setAttribute("stroke","#e2dbc6"); ln.setAttribute("stroke-width","1");
+    g.appendChild(ln);
+    const lb = document.createElementNS(NS,"text");
+    lb.setAttribute("x",x); lb.setAttribute("y",bot+34); lb.setAttribute("text-anchor","middle");
+    lb.setAttribute("font-size","13"); lb.setAttribute("fill","#a39c8b");
+    lb.textContent = p + "%";
+    g.appendChild(lb);
+  });
+
+  // 行
+  const anim = [];
+
+  data.forEach((it,i)=>{
+    const y = top + i*(bh+gap);
+    const w = (x1-x0) * it.n/maxN;
+    const color = "#722F37"; // 酒紅
+
+    // 序號
+    const rank = document.createElementNS(NS,"text");
+    rank.setAttribute("x",40); rank.setAttribute("y",y+bh/2+6); rank.setAttribute("text-anchor","end");
+    rank.setAttribute("font-size", Math.min(17, bh*0.55)); rank.setAttribute("fill","#a39c8b");
+    rank.textContent = i+1;
+    g.appendChild(rank);
+
+    // 姓氏字
+    const chColor = it.n === 0 ? "#b3ac9b" : "#2b2a28";
+    const ch = document.createElementNS(NS,"text");
+    ch.setAttribute("x",92); ch.setAttribute("y",y+bh/2+9);
+    ch.setAttribute("text-anchor","middle");
+    ch.setAttribute("font-size", Math.min(26, bh*0.8)); ch.setAttribute("font-weight","900"); ch.setAttribute("fill", chColor);
+    ch.textContent = it.s;
+    g.appendChild(ch);
+
+    // 懸停區：僅「姓氏」字觸發提示，其餘地方不懸停
+    const hv = document.createElementNS(NS,"rect");
+    hv.setAttribute("x",66); hv.setAttribute("y",y); hv.setAttribute("width",56); hv.setAttribute("height",bh);
+    hv.setAttribute("fill","transparent");
+    hv.style.cursor = "pointer";
+    hv.addEventListener("mousemove", ev=>{
+      const cr = ch.getBoundingClientRect();
+      showTip(tipHtml(it,i+1), cr.left + cr.width/2, cr.top + cr.height/2);
+      ch.setAttribute("fill","#a63a2e");
+    });
+    hv.addEventListener("mouseleave", ()=>{
+      hideTip();
+      ch.setAttribute("fill", chColor);
+    });
+    g.appendChild(hv);
+
+
+    // 條形（動畫）
+    const bar = document.createElementNS(NS,"rect");
+    bar.setAttribute("x",x0); bar.setAttribute("y",y+2); bar.setAttribute("width",0); bar.setAttribute("height",bh-4);
+    bar.setAttribute("rx",Math.min(8,(bh-4)*0.35)); bar.setAttribute("ry",Math.min(8,(bh-4)*0.35));
+    bar.setAttribute("fill",color);
+    g.appendChild(bar);
+
+    // 人數
+    const cnt = document.createElementNS(NS,"text");
+    cnt.setAttribute("x",x0+w+14); cnt.setAttribute("y",y+bh/2+7);
+    cnt.setAttribute("font-size", Math.min(17, bh*0.55)); cnt.setAttribute("font-weight","700"); cnt.setAttribute("fill", it.n===0 ? "#b3ac9b" : "#2b2a28");
+    cnt.textContent = fmt(it.n);
+    g.appendChild(cnt);
+
+
+    anim.push({bar, w, i});
+  });
+
+  // 動畫：条形逐条出现（21 条起逐条错开延迟，一条一条加上去）
+  const dur = 500, delay = data.length > 20 ? 25 : 0;
+  const t0 = performance.now();
+  function step(now){
+    let done = true;
+    anim.forEach(({bar,w,i})=>{
+      const local = Math.max(0, now - t0 - i*delay);
+      const p = Math.min(1, local/dur);
+      const e = 1 - Math.pow(1-p, 3);
+      bar.setAttribute("width", (w*e).toFixed(1));
+      if (p < 1) done = false;
+    });
+    if (!done) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ================= 事件 ================= */
+function renderExtraTable(){
+  const grid = $("extraGrid");
+  grid.innerHTML = "";
+  // 取消民族分组：整表按人数降序排列（人数相同按姓氏字序）
+  const data = [...EXTRA].sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0],"zh-Hant"));
+  data.forEach(([s, n, e], i)=>{
+    const cell = document.createElement("div");
+    cell.className = "bjx-cell";
+    cell.innerHTML = `<span class="bp">${i+1}</span><span class="bs">${s}</span><span class="bn">${fmt(n)}</span>`;
+    cell.title = `${s} · ${e} · CBDB ${fmt(n)} 人`;
+    grid.appendChild(cell);
+  });
+}
+
+function renderBjxTable(){
+  const grid = $("bjxGrid");
+  grid.innerHTML = "";
+  BJX.forEach(x=>{
+    const [s, n, b] = x;
+    const cell = document.createElement("div");
+    cell.className = "bjx-cell" + (n === 0 ? " zero" : "");
+    cell.innerHTML = `<span class="bp">${b}</span><span class="bs">${s}</span><span class="bn">${fmt(n)}</span>`;
+    cell.title = `${s} · 《百家姓》第 ${b} 位 · CBDB ${fmt(n)} 人`;
+    grid.appendChild(cell);
+  });
+}
+
+$("topN").addEventListener("input", e=>{
+  state.topN = +e.target.value;
+  $("nLabel").textContent = state.topN;
+  hideTip();
+  renderBar();
+});
+$("sortMode").addEventListener("change", e=>{
+  state.sort = e.target.value;
+  hideTip();
+  renderBar();
+});
+/* 匯出 PNG */
+$("exportBtn").addEventListener("click", ()=>{
+  const svg = $("barSvg");
+  const vb = svg.getAttribute("viewBox").split(/\s+/).map(Number);
+  const w = vb[2], h = vb[3];
+  const xml = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([xml], {type:"image/svg+xml;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = ()=>{
+    const cv = document.createElement("canvas");
+    cv.width = w*2; cv.height = h*2;
+    const ctx = cv.getContext("2d");
+    ctx.drawImage(img, 0, 0, w*2, h*2);
+    URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.download = `CBDB_姓氏條形圖_Top${state.topN}.png`;
+    a.href = cv.toDataURL("image/png");
+    a.click();
+  };
+  img.src = url;
+});
+
+/* ================= 初始化 ================= */
+renderBjxTable();
+renderExtraTable();
+renderBar();
+</script>
+</body>
+</html>
