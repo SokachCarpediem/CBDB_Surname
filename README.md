@@ -37,8 +37,8 @@ Visit the [CBDB Surname Demonstration](https://sokachcarpediem.github.io/CBDB_Su
 
 Planned improvements for the next stages of this project.
 
-- **Variant Character Matching.** Match variant characters, simplified characters, and traditional characters into single surname entries, with every merge verified and supported by dictionaries or literature references.
-- **Cleaning of Non-Hundred Family Surnames.** Merge, remove, or revise entries in the non-Hundred Family Surnames table, with a documented reason or literature reference for every single operation.
+- **Variant Character Matching.** Match variant characters (异体字), simplified characters, and traditional characters to a single standard surname entry, with every merge verified and supported by dictionaries or literature references.
+- **Cleaning of Non-Hundred Family Surnames.** Merge, remove, or revise entries in the non-Hundred Family Surnames table, with a documented reason or literature reference for every operation.
 - **Ethnic Classification of Non-Hundred Family Surnames.** Classify non-Hundred Family Surnames by ethnicity, with a documented reason or literature reference for every classification.
 - **Interactive Visualization Ordered by the Hundred Family Surnames (《百家姓》).** Add an interactive visualization that arranges surnames in the original order of the classic text.
 
