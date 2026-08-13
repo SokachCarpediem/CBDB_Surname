@@ -33,6 +33,15 @@ Visit the [CBDB Surname Demonstration](https://sokachcarpediem.github.io/CBDB_Su
 2. Run `build_cbdb_surname_tables.ipynb` to generate `bjx_raw.json` and `extra_raw.json`.
 3. Run `build_cbdb_surname_website.ipynb` (together with `template.html`) to generate `CBDB_Surname.html`.
 
+## Future Work
+
+Planned improvements for the next stages of this project.
+
+- **Variant Character Matching.** Match variant characters, simplified characters, and traditional characters into single surname entries, with every merge verified and supported by dictionaries or literature references.
+- **Cleaning of Non-Hundred Family Surnames.** Merge, remove, or revise entries in the non-Hundred Family Surnames table, with a documented reason or literature reference for every single operation.
+- **Ethnic Classification of Non-Hundred Family Surnames.** Classify non-Hundred Family Surnames by ethnicity, with a documented reason or literature reference for every classification.
+- **Interactive Visualization Ordered by the Hundred Family Surnames (《百家姓》).** Add an interactive visualization that arranges surnames in the original order of the classic text.
+
 ## Contributors
 
 [Hanzhang Shan](https://github.com/SokachCarpediem), MSc in Digital Humanities, University College London
